@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Card" ALTER COLUMN "eFactor" DROP NOT NULL,
+ALTER COLUMN "nextInterval" DROP NOT NULL,
+ALTER COLUMN "repetition" DROP NOT NULL;
