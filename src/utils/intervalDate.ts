@@ -1,4 +1,4 @@
-import { Card, Prisma } from '@prisma/client';
+import { Card } from '@prisma/client';
 import dayjs from 'dayjs';
 
 export const nextIntervalDate = (card: Card) => {
