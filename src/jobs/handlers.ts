@@ -2,12 +2,13 @@ import { Job } from "agenda"
 import { sendMailHandler } from "./mailHandlers"
 
 const jobHandlers = {
-    sendMailOnDueDate: async (job: Job) => { 
+    sendMail: async (job: Job) => { 
     
         console.log(`Running at: ${Date()}`)
-        const invoiceId = job.attrs.data.id 
 
-        await sendMailHandler(invoiceId, false)
+        const { cardId } = job.attrs.data
+
+        await sendMailHandler(cardId)
 
         console.log('job done')
     }
