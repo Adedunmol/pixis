@@ -11,4 +11,10 @@ export const createUserSchema = z.object({
     message: "Passwords must match"
 })
 
+export const loginUserSchema = z.object({
+    email: z.string().email(),
+    password: z.string()
+})
+
+export type loginUserSchema = z.infer<typeof loginUserSchema>
 export type createUserSchema = z.infer<typeof createUserSchema>

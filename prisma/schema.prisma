@@ -11,13 +11,14 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  imageUrl  String?
-  createdAt DateTime @default(now())
-  cards     Card[]
+  id           String   @id @default(uuid())
+  email        String   @unique
+  password     String
+  name         String
+  imageUrl     String?
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  cards        Card[]
 }
 
 model Card {

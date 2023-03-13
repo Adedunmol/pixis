@@ -18,4 +18,5 @@ export const errorHandlerMiddleware = async (err: any, req: Request, res: Respon
         }
     }
 
+    return res.status(customErr.statusCode).json({ message: customErr.message })
 }
