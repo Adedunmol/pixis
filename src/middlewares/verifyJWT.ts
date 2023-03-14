@@ -19,7 +19,11 @@ export const verifyJWT = async (req: Request, res: Response, next: NextFunction)
         (err, decoded) => {
             if (err) throw new ForbiddenError("Invalid token")
             const data = decoded as DecodedData
-            req.user = data.email
+            const user = {
+                id: data.id,
+                email: data.email
+            }
+            req.user = user
             next()
         }
     )

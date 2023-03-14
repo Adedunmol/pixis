@@ -27,7 +27,7 @@ export const createUserController = async (req: Request<{}, {}, createUserSchema
         }
     })
 
-    return res.status(StatusCodes.CREATED).json({ createdUser })
+    return res.status(StatusCodes.CREATED).json({ data: createdUser })
 }
 
 export const loginUserController = async (req: Request<{}, {}, loginUserSchema>, res: Response) => {
@@ -52,7 +52,7 @@ export const loginUserController = async (req: Request<{}, {}, loginUserSchema>,
         const ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000
 
         const accessToken = jwt.sign(
-            { email: foundUser.email }, 
+            { email: foundUser.email, id: foundUser.id }, 
             process.env.ACCESS_TOKEN_SECRET!, 
             { expiresIn: '15m' }
         )
@@ -103,7 +103,7 @@ export const refreshTokenController = async (req: Request, res: Response) => {
             const ACCESS_TOKEN_EXPIRATION = 15 * 60 * 1000
 
             const accessToken = jwt.sign(
-                { email: data.email }, 
+                { email: data.email, id: data.id }, 
                 process.env.ACCESS_TOKEN_SECRET!, 
                 { expiresIn: '15m' }
             )
