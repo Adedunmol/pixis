@@ -5,6 +5,7 @@ import { fromZodError } from 'zod-validation-error';
 import { prisma } from "../config/dbConn";
 import { StatusCodes } from "http-status-codes";
 import { NotFound } from "../errors/NotFound";
+import customEvents from "../event";
 
 export const createCardHandler = async (req: Request<{}, {}, createCardSchema>, res: Response) => {
     const result = createCardSchema.safeParse(req.body)
@@ -17,6 +18,8 @@ export const createCardHandler = async (req: Request<{}, {}, createCardSchema>, 
     const card = await prisma.card.create({
         data: cardPayload
     })
+
+    customEvents.emit('schedule', card)
 
     return res.status(StatusCodes.CREATED).json({ data: card })
 }
