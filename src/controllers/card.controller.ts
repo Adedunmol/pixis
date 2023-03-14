@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createCardSchema } from "../schema/card.schema";
+import { createCardSchema, updateCardSchema } from "../schema/card.schema";
 import { BadRequest } from "../errors/BadRequest";
 import { fromZodError } from 'zod-validation-error';
 import { prisma } from "../config/dbConn";
@@ -7,6 +7,17 @@ import { StatusCodes } from "http-status-codes";
 import { NotFound } from "../errors/NotFound";
 import customEvents from "../events";
 import { ForbiddenError } from "../errors/Forbidden";
+import { superMemo, superMemoGrade } from "../utils/sm-2";
+import { Prisma } from "@prisma/client";
+
+const grades = {
+    'A': 5,
+    'B': 4,
+    'C': 3,
+    'D': 2,
+    'E': 1,
+    'F': 0,
+}
 
 export const createCardHandler = async (req: Request<{}, {}, createCardSchema>, res: Response) => {
     const result = createCardSchema.safeParse(req.body)
@@ -67,4 +78,43 @@ export const deleteCardHandler = async (req: Request<{ id: string }>, res: Respo
     })
 
     return res.status(StatusCodes.OK).json({ message: 'card deleted', data: card })
+}
+
+export const updateCardHandler = async (req: Request<{ id: string }, {}, updateCardSchema>, res: Response) => {
+    const result = updateCardSchema.safeParse(req.body)
+
+    if (!result.success) {
+        throw new BadRequest(fromZodError(result.error).toString())
+    }
+
+    const card = await prisma.card.findFirst({
+        where: {
+            id: req.params.id
+        }
+    })
+
+    if (!card) throw new NotFound('No card found with this id')
+
+    const cardDetails = { 
+        nextInterval: card.nextInterval!,
+        repetition: card.repetition!,
+        eFactor: Number(card.eFactor),
+    }
+
+    const smemoGrade = grades[req.body.grade] as superMemoGrade
+
+    const smemoItem = superMemo(cardDetails, smemoGrade)
+
+    const updatedCardDetails = { ...smemoItem, eFactor: new Prisma.Decimal(smemoItem.eFactor) }
+
+    const updatedCard = await prisma.card.update({
+        where: {
+            id: card.id
+        }, 
+        data: updatedCardDetails
+    })
+
+    customEvents.emit('schedule', card)
+
+    return res.status(StatusCodes.OK).json({ data: updatedCard })
 }

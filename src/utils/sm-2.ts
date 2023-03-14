@@ -1,7 +1,9 @@
+import { Prisma } from "@prisma/client"
+
 export type SuperMemoItem = {
-    interval: number;
+    nextInterval: number;
     repetition: number;
-    efactor: number;
+    eFactor: number;
 }
 
 /*
@@ -37,7 +39,7 @@ export function superMemo(item: SuperMemoItem, grade: superMemoGrade): SuperMemo
             nextInterval = 6
             repetition = 2
         } else {
-            nextInterval = Math.round(item.interval * item.efactor) // inter-repetition interval after the n-th repetition (in days)
+            nextInterval = Math.round(item.eFactor * item.nextInterval) // inter-repetition interval after the n-th repetition (in days)
             repetition = item.repetition + 1
         }
     } else {
@@ -46,13 +48,13 @@ export function superMemo(item: SuperMemoItem, grade: superMemoGrade): SuperMemo
         repetition = 0 // newly added
     } 
 
-    eFactor = item.efactor + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02)) // the new efactor for this card
+    eFactor = item.eFactor + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02)) // the new efactor for this card
 
     if (eFactor < 1.3) eFactor = 1.3 // to reduce repeating a card too often
 
     return {
-        interval: nextInterval, // use this as an input to the cron sending notifications or mails
+        nextInterval, // use this as an input to the cron sending notifications or mails
         repetition: repetition,
-        efactor: eFactor
+        eFactor
     }
 }
