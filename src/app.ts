@@ -4,7 +4,7 @@ import { routeNotFoundMiddleware } from './middlewares/routeNotFound';
 import cookieParser from 'cookie-parser';
 
 import authRouter from "./routes/auth.route";
-import customEvents from './event';
+import customEvents from './events';
 import scheduler from './jobs/scheduler';
 import { Card } from '@prisma/client'
 import { nextIntervalDate } from './utils/intervalDate';

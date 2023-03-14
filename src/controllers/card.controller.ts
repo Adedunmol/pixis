@@ -5,7 +5,8 @@ import { fromZodError } from 'zod-validation-error';
 import { prisma } from "../config/dbConn";
 import { StatusCodes } from "http-status-codes";
 import { NotFound } from "../errors/NotFound";
-import customEvents from "../event";
+import customEvents from "../events";
+import { ForbiddenError } from "../errors/Forbidden";
 
 export const createCardHandler = async (req: Request<{}, {}, createCardSchema>, res: Response) => {
     const result = createCardSchema.safeParse(req.body)
@@ -44,4 +45,26 @@ export const getCardHandler = async (req: Request<{ id: string }>, res: Response
     if (!card) throw new NotFound('No card found with this id')
 
     return res.status(StatusCodes.OK).json({ data: card})
+}
+
+export const deleteCardHandler = async (req: Request<{ id: string }>, res: Response) => {
+    let card = await prisma.card.findFirst({
+        where: {
+            id: req.params.id
+        }
+    })
+
+    if (!card) throw new NotFound('No card found with this id')
+
+    const userId = req.user.id
+
+    if (card?.authorId !== userId) throw new ForbiddenError('You are not the owner of this card')
+
+    card = await prisma.card.delete({
+        where: {
+            id: req.params.id
+        }
+    })
+
+    return res.status(StatusCodes.OK).json({ message: 'card deleted', data: card })
 }
