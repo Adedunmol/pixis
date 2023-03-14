@@ -4,6 +4,7 @@ import { BadRequest } from "../errors/BadRequest";
 import { fromZodError } from 'zod-validation-error';
 import { prisma } from "../config/dbConn";
 import { StatusCodes } from "http-status-codes";
+import { NotFound } from "../errors/NotFound";
 
 export const createCardHandler = async (req: Request<{}, {}, createCardSchema>, res: Response) => {
     const result = createCardSchema.safeParse(req.body)
@@ -18,4 +19,26 @@ export const createCardHandler = async (req: Request<{}, {}, createCardSchema>, 
     })
 
     return res.status(StatusCodes.CREATED).json({ data: card })
+}
+
+export const getCardsHandler = async (req: Request, res: Response) => {
+    const cards = await prisma.card.findMany({
+        where: {
+            authorId: req.user.id
+        }
+    })
+
+    return res.status(StatusCodes.OK).json({ data: cards, nbHits: cards.length })
+}
+
+export const getCardHandler = async (req: Request<{ id: string }>, res: Response) => {
+    const card = await prisma.card.findFirst({
+        where: {
+            id: req.params.id
+        }
+    })
+
+    if (!card) throw new NotFound('No card found with this id')
+
+    return res.status(StatusCodes.OK).json({ data: card})
 }
