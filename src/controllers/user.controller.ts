@@ -5,6 +5,7 @@ import { fromZodError } from "zod-validation-error";
 import { prisma } from "../config/dbConn";
 import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
+import { NotFound } from "../errors/NotFound";
 
 export const changePasswordController = async (req: Request<{}, {}, changePasswordSchema>, res: Response) => {
     const result = changePasswordSchema.safeParse(req.body)
@@ -37,4 +38,19 @@ export const changePasswordController = async (req: Request<{}, {}, changePasswo
     })
 
     return res.status(StatusCodes.OK).json({ message: 'Password changed' })
+}
+
+
+export const getUserController = async (req: Request<{ id: string }>, res: Response) => {
+    const userId = req.params.id
+
+    const user = await prisma.user.findFirst({
+        where: {
+            id: userId
+        }
+    })
+
+    if (!user) throw new NotFound('No user found with this id')
+
+    return res.status(StatusCodes.OK).json({ data: user })
 }
