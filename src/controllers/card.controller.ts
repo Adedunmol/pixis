@@ -31,9 +31,28 @@ export const createCardHandler = async (req: Request<{}, {}, createCardSchema>, 
         data: cardPayload
     })
 
-    customEvents.emit('schedule', card)
+    const cardDetails = { 
+        nextInterval: card.nextInterval!,
+        repetition: card.repetition!,
+        eFactor: Number(card.eFactor),
+    }
 
-    return res.status(StatusCodes.CREATED).json({ data: card })
+    const smemoGrade = grades['A'] as superMemoGrade
+
+    const smemoItem = superMemo(cardDetails, smemoGrade)
+
+    const updatedCardDetails = { ...smemoItem, eFactor: new Prisma.Decimal(smemoItem.eFactor) }
+
+    const updatedCard = await prisma.card.update({
+        where: {
+            id: card.id
+        }, 
+        data: updatedCardDetails
+    })
+
+    customEvents.emit('schedule', updatedCard)
+
+    return res.status(StatusCodes.CREATED).json({ data: updatedCard })
 }
 
 export const getCardsHandler = async (req: Request, res: Response) => {

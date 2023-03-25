@@ -24,6 +24,6 @@ export const sendMailHandler = async (cardId: string) => {
 
     const subject = `Review this item`
     const text = `Please check the link below:`
-    const link = ''
+    const link = `$`
     await sendMail(user.email, subject, text, 'review.hbs', link, user)
 }

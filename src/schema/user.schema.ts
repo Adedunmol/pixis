@@ -10,4 +10,9 @@ export const changePasswordSchema = z.object({
     message: 'Passwords must match'
 })
 
+export const updateUserSchema = z.object({
+    name: z.string().optional()
+})
+
+export type updateUserSchema = z.infer<typeof updateUserSchema>
 export type changePasswordSchema = z.infer<typeof changePasswordSchema>

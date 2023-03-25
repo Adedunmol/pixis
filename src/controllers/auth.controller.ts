@@ -18,12 +18,13 @@ export const createUserController = async (req: Request<{}, {}, createUserSchema
     }
 
     const hashedPassword = await bcrypt.hash(result.data.password, 10)
-    const userPayload = { ...result.data, password: hashedPassword }
+    const userPayload = { name: result.data.name, email: result.data.email, password: hashedPassword }
 
     const createdUser = await prisma.user.create({
         data: userPayload,
         select: {
-            password: false
+            name: true,
+            email: true
         }
     })
 
@@ -75,6 +76,8 @@ export const loginUserController = async (req: Request<{}, {}, loginUserSchema>,
 
         return res.status(StatusCodes.OK).json({ token: accessToken, expiresIn: ACCESS_TOKEN_EXPIRATION })
     }
+
+    return res.status(StatusCodes.BAD_REQUEST).json({ "message": "invalid details" })
 }
 
 export const refreshTokenController = async (req: Request, res: Response) => {
